@@ -100,6 +100,7 @@
 
     /* stat row */
     .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-radius: 7px; overflow: hidden; }
+    .stat-row-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); border-radius: 7px; overflow: hidden; }
     .stat-cell { background: var(--surface); padding: 16px 16px 14px; }
     .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
     .stat-val { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; transition: color 0.2s; }
@@ -263,8 +264,20 @@
             <span class="wp-v-off" id="wp-off">—</span>
             <span class="wp-v-def" id="wp-def">—</span>
           </div>
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:6px;overflow:hidden;">
+            <div class="stat-cell" style="padding:12px 14px 10px;">
+              <div class="stat-lbl">Implied Odds (Off.)</div>
+              <div class="stat-val na" id="out-odds-off" style="font-size:20px;">—</div>
+              <div class="stat-sub">moneyline</div>
+            </div>
+            <div class="stat-cell" style="padding:12px 14px 10px;">
+              <div class="stat-lbl">Implied Odds (Def.)</div>
+              <div class="stat-val na" id="out-odds-def" style="font-size:20px;">—</div>
+              <div class="stat-sub">moneyline</div>
+            </div>
+          </div>
         </div>
-        <p class="incomplete-note">Win probability model not yet complete.</p>
+        <p class="incomplete-note">Win probability model not yet complete — odds will populate when available.</p>
       </article>
 
       <article>
@@ -455,6 +468,12 @@
     renderHistory();
   }
 
+  function impliedOdds(wp) {
+    // wp is 0–1. Returns American odds string e.g. "-170" or "+145"
+    if (wp >= 0.5) return '-' + Math.round(wp / (1 - wp) * 100);
+    return '+' + Math.round((1 - wp) / wp * 100);
+  }
+
   function renderMain(res) {
     setStat('out-epa', (res.epa >= 0 ? '+' : '') + res.epa.toFixed(4), res.epa >= 0 ? 'pos' : 'neg');
     setStat('out-sr',  (res.success * 100).toFixed(1) + '%', res.success >= 0.5 ? 'pos' : 'neg');
@@ -463,6 +482,16 @@
     } else {
       const e = document.getElementById('out-rz');
       e.textContent = 'not in RZ'; e.className = 'stat-val na';
+    }
+    // implied odds — only live once WP model is wired; currently res.wp is undefined
+    if (res.wp !== undefined && res.wp !== null) {
+      const oddsOff = impliedOdds(res.wp);
+      const oddsDef = impliedOdds(1 - res.wp);
+      const offEl = document.getElementById('out-odds-off');
+      const defEl = document.getElementById('out-odds-def');
+      offEl.textContent = oddsOff; offEl.className = 'stat-val ' + (res.wp >= 0.5 ? 'neg' : 'pos');
+      defEl.textContent = oddsDef; defEl.className = 'stat-val ' + (res.wp <  0.5 ? 'neg' : 'pos');
+      offEl.style.fontSize = '20px'; defEl.style.fontSize = '20px';
     }
   }
 
