@@ -1,145 +1,551 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OLAVE-NFL</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.65;color:#000;background:#CBC3E3;max-width:680px;margin:0 auto;padding:2.5rem 1.25rem}
-h1{font-size:1.35rem;font-weight:bold;margin-bottom:.2rem}
-.sub{font-size:.85rem;color:#444;margin-bottom:1.6rem}
-hr{border:none;border-top:1px solid #aaa;margin:1.5rem 0}
-h2{font-size:1rem;font-weight:bold;margin-bottom:.85rem}
-.field-row{display:flex;flex-wrap:wrap;gap:.5rem 1.75rem;margin-bottom:.9rem}
-.field{display:flex;flex-direction:column;gap:2px}
-.field label{font-size:.82rem}
-select,input[type=number]{font-family:inherit;font-size:.82rem;border:1px solid #888;padding:2px 5px;background:#fff;color:#000}
-button{font-family:inherit;font-size:.85rem;background:#fff;border:1px solid #000;padding:3px 18px;cursor:pointer;margin-top:.4rem}
-button:hover{background:#f0f0f0}
-.pred-out{display:none;margin-top:1.1rem;border-top:1px solid #ccc;padding-top:.9rem}
-.metrics{display:flex;flex-wrap:wrap;gap:2rem}
-.metric .lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:#555;display:block;margin-bottom:1px}
-.metric .num{font-size:1.2rem;font-family:"Courier New",Courier,monospace}
-.pos{color:#0a5c0a}
-.neg{color:#8b0000}
-@media(max-width:480px){.field-row{gap:.5rem 1rem}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLAVE-NFL</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pico-font-family-sans-serif: 'DM Sans', sans-serif;
+      --pico-font-family: 'DM Sans', sans-serif;
+      --bg:        #f5f4f1;
+      --surface:   #ffffff;
+      --border:    #e2e0db;
+      --border2:   #d0cec8;
+      --text:      #1a1916;
+      --muted:     #7a7870;
+      --dim:       #e8e6e1;
+      --accent:    #2b5be0;
+      --accent-bg: #eef1fc;
+      --green:     #1a7f4e;
+      --green-bg:  #eaf5ef;
+      --red:       #c0392b;
+      --red-bg:    #fdf0ee;
+      --mono:      'DM Mono', monospace;
+      --pico-background-color: var(--bg);
+      --pico-color: var(--text);
+      --pico-primary: var(--accent);
+      --pico-primary-hover: #1e47c8;
+      --pico-border-color: var(--border);
+      --pico-card-background-color: var(--surface);
+      --pico-card-border-color: var(--border);
+      --pico-form-element-background-color: var(--bg);
+      --pico-form-element-border-color: var(--border2);
+      --pico-form-element-color: var(--text);
+      --pico-form-element-focus-color: var(--accent);
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      margin-bottom: 0;
+    }
+    .logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--text); }
+    .nav { display: flex; gap: 2px; }
+    .nav-btn {
+      background: none; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400;
+      color: var(--muted); padding: 6px 14px; border-radius: 5px; cursor: pointer;
+      transition: background 0.12s, color 0.12s; margin: 0; width: auto;
+    }
+    .nav-btn:hover { background: var(--dim); color: var(--text); }
+    .nav-btn.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+
+    .page { display: none; padding: 28px 32px; max-width: 1080px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    .label { font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+    .mb-12 { margin-bottom: 12px; } .mb-16 { margin-bottom: 16px; } .mb-20 { margin-bottom: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(138px,1fr)); gap: 12px; }
+
+    article { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 22px; margin: 0; }
+    article > header { background: none; border-bottom: 1px solid var(--border); padding: 0 0 12px 0; margin-bottom: 16px; height: auto; position: static; display: block; }
+    article > header .label { display: block; }
+
+    .toggle-group { display: flex; margin-bottom: 0; }
+    .toggle-btn {
+      flex: 1; background: var(--bg); border: 1px solid var(--border2);
+      color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400;
+      padding: 8px 6px; cursor: pointer; transition: all 0.1s; text-align: center; margin: 0; width: auto;
+    }
+    .toggle-btn:not(:last-child) { border-right: none; }
+    .toggle-btn:first-child { border-radius: 5px 0 0 5px; }
+    .toggle-btn:last-child  { border-radius: 0 5px 5px 0; }
+    .toggle-btn.active { background: var(--accent-bg); border-color: rgba(43,91,224,0.3); color: var(--accent); font-weight: 500; position: relative; z-index: 1; }
+
+    input, select { font-family: 'DM Sans', sans-serif; font-size: 14px; margin-bottom: 0; padding: 8px 10px; height: auto; background: var(--bg); border-color: var(--border2); }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(43,91,224,0.08); }
+    label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+
+    button[type=submit], .predict-btn {
+      background: var(--accent); border: none; border-radius: 6px; color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      padding: 10px 16px; cursor: pointer; width: 100%; margin-top: 16px; transition: opacity 0.15s;
+    }
+    button[type=submit]:hover, .predict-btn:hover { opacity: 0.88; }
+
+    /* stat row */
+    .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-radius: 7px; overflow: hidden; }
+    .stat-cell { background: var(--surface); padding: 16px 16px 14px; }
+    .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .stat-val { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; transition: color 0.2s; }
+    .stat-val.pos { color: var(--green); }
+    .stat-val.neg { color: var(--red); }
+    .stat-val.na  { color: var(--border2); font-size: 18px; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* win prob */
+    .wp-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .wp-lbl-off { font-size: 12px; font-weight: 500; color: var(--accent); }
+    .wp-lbl-def { font-size: 12px; color: var(--muted); }
+    .wp-track { height: 6px; background: var(--dim); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+    .wp-fill  { height: 100%; background: var(--accent); border-radius: 3px 0 0 3px; width: 50%; }
+    .wp-vals  { display: flex; justify-content: space-between; }
+    .wp-v-off { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--accent); }
+    .wp-v-def { font-family: var(--mono); font-size: 20px; color: var(--muted); }
+
+    /* drive */
+    .drive-list { display: flex; flex-direction: column; gap: 11px; }
+    .drive-row  { display: flex; align-items: center; gap: 10px; }
+    .drive-name { width: 72px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+    .drive-track { flex: 1; height: 4px; background: var(--dim); border-radius: 2px; overflow: hidden; }
+    .drive-fill  { height: 100%; border-radius: 2px; width: 0%; }
+    .fill-td { background: var(--green); } .fill-fg { background: var(--accent); }
+    .fill-punt { background: var(--muted); } .fill-to { background: var(--red); }
+    .drive-pct { width: 38px; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+    /* incomplete overlay */
+    .incomplete-overlay {
+      position: relative;
+    }
+    .incomplete-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(245,244,241,0.7);
+      border-radius: 7px;
+      pointer-events: none;
+    }
+    .incomplete-note {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 10px;
+    }
+
+    /* test plays */
+    .test-section { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 20px; }
+    .test-plays { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 12px; }
+    .test-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: border-color 0.12s; }
+    .test-card:hover { border-color: var(--accent); }
+    .test-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .test-card-desc  { font-size: 13px; color: var(--text); margin-bottom: 4px; font-weight: 500; }
+    .test-card-detail { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+    /* history */
+    .card-table { padding: 0; overflow: hidden; }
+    table { margin: 0; font-size: 13px; }
+    thead th { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; }
+    tbody td { padding: 9px 12px; }
+    tbody tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+    .badge-pos { background: var(--green-bg); color: var(--green); }
+    .badge-neg { background: var(--red-bg); color: var(--red); }
+    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+    .clear-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 5px 12px; border-radius: 5px; cursor: pointer; transition: all 0.1s; width: auto; margin: 0; }
+    .clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+    /* compare */
+    .delta-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-radius: 7px; overflow: hidden; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  </style>
 </head>
 <body>
 
-<h1>OLAVE-NFL</h1>
-<p class="sub">EPA, success rate, win probability, red zone, drive efficiency (2021&ndash;2023 regular season)</p>
-<p class="sub">As of now, what is below is a single play estimator since we have not finished our win probability and drive eff. models.</p>
-<p class="sub"><a href="https://govardha.net/olave/source">source code at github</a></p>
+<header>
+  <span class="logo">OLAVE-NFL</span>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('predictor',this)">Predictor</button>
+    <button class="nav-btn" onclick="switchTab('compare',this)">Compare</button>
+    <button class="nav-btn" onclick="switchTab('history',this)">History</button>
+  </nav>
+  <span></span>
+</header>
 
+<!-- ══ PREDICTOR ══ -->
+<div class="page active" id="page-predictor">
+  <div class="grid-2">
 
+    <!-- INPUTS -->
+    <article>
+      <header><span class="label">Game State</span></header>
 
-<h2>Play Predictor</h2>
-<div class="field-row">
-  <div class="field"><label>Down (1&ndash;4)</label><select id="p-down"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
-  <div class="field"><label>Yards to Go</label><input id="p-ydstogo" type="number" value="10" min="1" max="99"></div>
-  <div class="field"><label>Yard Line (1 = opp gl)</label><input id="p-yardline" type="number" value="50" min="1" max="99"></div>
-  <div class="field"><label>Score Differential</label><input id="p-score" type="number" value="0" min="-35" max="35"></div>
-  <div class="field"><label>Seconds Remaining (half)</label><input id="p-time" type="number" value="900" min="0" max="1800"></div>
-  <div class="field"><label>Play Type</label><select id="p-type"><option>pass</option><option>run</option></select></div>
-</div>
-<button onclick="runPredict()">Predict</button>
-<p class="sub">"Seconds remaining" is here for future purposes, does not serve a purpose until WP and DE models.</p>
+      <div class="mb-16">
+        <label>Down</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setDown(1,this)">1st</button>
+          <button class="toggle-btn" onclick="setDown(2,this)">2nd</button>
+          <button class="toggle-btn" onclick="setDown(3,this)">3rd</button>
+          <button class="toggle-btn" onclick="setDown(4,this)">4th</button>
+        </div>
+      </div>
 
-<div class="pred-out" id="pred-out">
-  <div class="metrics">
-    <div class="metric"><span class="lbl">Predicted EPA</span><span class="num" id="out-epa">&#8212;</span></div>
-    <div class="metric"><span class="lbl">Success Probability</span><span class="num" id="out-success">&#8212;</span></div>
-    <div class="metric"><span class="lbl">RZ TD Probability</span><span class="num" id="out-rz">&#8212;</span></div>
+      <div class="grid-inputs mb-16">
+        <div><label for="ydstogo">Yards to Go</label><input type="number" id="ydstogo" value="10" min="1" max="99"></div>
+        <div><label for="yardline">Yardline (to EZ)</label><input type="number" id="yardline" value="50" min="1" max="99"></div>
+        <div><label for="score_diff">Score Diff</label><input type="number" id="score_diff" value="0" min="-35" max="35"></div>
+        <div><label for="game_secs">Secs (half)</label><input type="number" id="game_secs" value="900" min="0" max="1800"></div>
+      </div>
+
+      <div class="mb-16">
+        <label>Play Type</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setPlayType('pass',this)">Pass</button>
+          <button class="toggle-btn" onclick="setPlayType('run',this)">Run</button>
+        </div>
+      </div>
+
+      <button type="submit" onclick="runPrediction()">Run Prediction</button>
+    </article>
+
+    <!-- OUTPUTS -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <article>
+        <header><span class="label">Play Prediction</span></header>
+        <div class="stat-row">
+          <div class="stat-cell">
+            <div class="stat-lbl">EPA</div>
+            <div class="stat-val na" id="out-epa">—</div>
+            <div class="stat-sub">exp. pts added</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">Success Rate</div>
+            <div class="stat-val na" id="out-sr">—</div>
+            <div class="stat-sub">prob. EPA &gt; 0</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">Red Zone TD</div>
+            <div class="stat-val na" id="out-rz">—</div>
+            <div class="stat-sub">if applicable</div>
+          </div>
+        </div>
+      </article>
+
+      <article>
+        <header>
+          <span class="label">Win Probability</span>
+        </header>
+        <div class="incomplete-overlay">
+          <div class="wp-header">
+            <span class="wp-lbl-off">Offense</span>
+            <span class="wp-lbl-def">Defense</span>
+          </div>
+          <div class="wp-track"><div class="wp-fill" id="wp-bar"></div></div>
+          <div class="wp-vals">
+            <span class="wp-v-off" id="wp-off">—</span>
+            <span class="wp-v-def" id="wp-def">—</span>
+          </div>
+        </div>
+        <p class="incomplete-note">Win probability model not yet complete.</p>
+      </article>
+
+      <article>
+        <header><span class="label">Drive Outcome</span></header>
+        <div class="incomplete-overlay">
+          <div class="drive-list">
+            <div class="drive-row"><div class="drive-name">Touchdown</div><div class="drive-track"><div class="drive-fill fill-td" id="do-td"></div></div><div class="drive-pct" id="do-td-p">—</div></div>
+            <div class="drive-row"><div class="drive-name">Field Goal</div><div class="drive-track"><div class="drive-fill fill-fg" id="do-fg"></div></div><div class="drive-pct" id="do-fg-p">—</div></div>
+            <div class="drive-row"><div class="drive-name">Punt</div><div class="drive-track"><div class="drive-fill fill-punt" id="do-punt"></div></div><div class="drive-pct" id="do-punt-p">—</div></div>
+            <div class="drive-row"><div class="drive-name">Turnover</div><div class="drive-track"><div class="drive-fill fill-to" id="do-to"></div></div><div class="drive-pct" id="do-to-p">—</div></div>
+          </div>
+        </div>
+        <p class="incomplete-note">Drive outcome model not yet complete.</p>
+      </article>
+
+    </div>
+  </div>
+
+  <!-- TEST PLAYS -->
+  <div class="test-section">
+    <span class="label">Test Plays</span>
+    <div class="test-plays">
+      <div class="test-card" onclick="loadTest(0)">
+        <div class="test-card-label">Neutral</div>
+        <div class="test-card-desc">1st &amp; 10 · Own 25</div>
+        <div class="test-card-detail">Tied · 2Q · 8:00 left</div>
+      </div>
+      <div class="test-card" onclick="loadTest(1)">
+        <div class="test-card-label">Favorable</div>
+        <div class="test-card-desc">3rd &amp; 2 · Opp. 8</div>
+        <div class="test-card-detail">Up 3 · 4Q · 2:30 left</div>
+      </div>
+      <div class="test-card" onclick="loadTest(2)">
+        <div class="test-card-label">Unfavorable</div>
+        <div class="test-card-desc">3rd &amp; 18 · Own 10</div>
+        <div class="test-card-detail">Down 14 · 4Q · 1:55 left</div>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- ══ COMPARE ══ -->
+<div class="page" id="page-compare">
+  <span class="label">Compare Two Plays</span>
+  <div class="grid-2" style="margin-top:14px;margin-bottom:16px;">
+    <article>
+      <header><span class="label">Play A</span></header>
+      <div class="grid-inputs mb-16">
+        <div><label>Down</label><select id="ca-down"><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option></select></div>
+        <div><label>Yds to Go</label><input type="number" id="ca-ytg" value="10" min="1" max="99"></div>
+        <div><label>Yardline</label><input type="number" id="ca-yl" value="50" min="1" max="99"></div>
+        <div><label>Score Diff</label><input type="number" id="ca-sd" value="0"></div>
+        <div><label>Secs (half)</label><input type="number" id="ca-gs" value="900"></div>
+      </div>
+      <button type="submit" onclick="runCompare('a')" style="margin-top:0">Predict A</button>
+      <div id="ca-result" style="margin-top:14px;display:none;" class="stat-row"></div>
+    </article>
+    <article>
+      <header><span class="label">Play B</span></header>
+      <div class="grid-inputs mb-16">
+        <div><label>Down</label><select id="cb-down"><option value="1">1st</option><option value="2">2nd</option><option value="3" selected>3rd</option><option value="4">4th</option></select></div>
+        <div><label>Yds to Go</label><input type="number" id="cb-ytg" value="15" min="1" max="99"></div>
+        <div><label>Yardline</label><input type="number" id="cb-yl" value="20" min="1" max="99"></div>
+        <div><label>Score Diff</label><input type="number" id="cb-sd" value="-10"></div>
+        <div><label>Secs (half)</label><input type="number" id="cb-gs" value="120"></div>
+      </div>
+      <button type="submit" onclick="runCompare('b')" style="margin-top:0">Predict B</button>
+      <div id="cb-result" style="margin-top:14px;display:none;" class="stat-row"></div>
+    </article>
+  </div>
+  <article id="delta-card" style="display:none;">
+    <header><span class="label">Delta (A − B)</span></header>
+    <div class="delta-row" id="delta-row"></div>
+  </article>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div class="page" id="page-history">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <span class="label">Prediction Log</span>
+    <button class="clear-btn" onclick="clearHistory()">Clear</button>
+  </div>
+  <article class="card-table">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Down &amp; Dist</th><th>Yardline</th>
+        <th>Score Diff</th><th>EPA</th><th>Success%</th><th>RZ TD</th><th>Time</th>
+      </tr></thead>
+      <tbody id="hist-body">
+        <tr><td colspan="8"><div class="empty">No predictions yet.</div></td></tr>
+      </tbody>
+    </table>
+  </article>
+</div>
+
 <script>
-let GRID = null;
+  // ── state ──────────────────────────────────────────────────────────────────
+  let S = { down:1, ydstogo:10, yardline:50, score:0, secs:900, playType:'pass' };
+  let history = [];
+  let cmpRes = {};
+  let GRID = null;
 
-async function loadGrid() {
-  try {
-    const r = await fetch('./data/prediction_grid.json');
-    if (r.ok) GRID = await r.json();
-  } catch(e) {}
-}
+  const TEST_PLAYS = [
+    { down:1, ydstogo:10, yardline:75, score:0,   secs:960,  playType:'pass' },
+    { down:3, ydstogo:2,  yardline:8,  score:3,   secs:150,  playType:'pass' },
+    { down:3, ydstogo:18, yardline:90, score:-14, secs:115,  playType:'pass' }
+  ];
 
-const _EP = [[1,-1.64],[5,-0.97],[10,-0.29],[15,0.27],[20,0.70],[25,1.14],[30,1.48],[35,1.82],[40,2.10],[45,2.36],[50,2.60],[55,2.83],[60,3.01],[65,3.17],[70,3.40],[75,3.62],[80,3.88],[85,4.07],[90,4.35],[95,4.67],[99,4.94]];
+  // ── model (your actual logic from index.html) ─────────────────────────────
+  function _approxEPA(down, ydstogo, yardline, scoreDiff) {
+    const base  = {1:0.035, 2:-0.005, 3:-0.068, 4:-0.22}[down] || 0;
+    const dist  = -0.009 * Math.max(0, ydstogo - 7);
+    const fp    =  0.0012 * Math.min(35, 100 - yardline);
+    const score = -0.0008 * Math.abs(scoreDiff);
+    return +(base + dist + fp + score).toFixed(4);
+  }
 
-function _lerp(tbl, x) {
-  if (x <= tbl[0][0]) return tbl[0][1];
-  if (x >= tbl[tbl.length-1][0]) return tbl[tbl.length-1][1];
-  for (let i=0; i<tbl.length-1; i++) {
-    if (x >= tbl[i][0] && x <= tbl[i+1][0]) {
-      const t = (x-tbl[i][0]) / (tbl[i+1][0]-tbl[i][0]);
-      return tbl[i][1] + t*(tbl[i+1][1]-tbl[i][1]);
+  function _approxSuccess(down, ydstogo, yardline) {
+    let p = 0.472 - (down-1)*0.032 - Math.max(0, ydstogo-7)*0.011;
+    p += 0.0008 * Math.min(30, 100 - yardline);
+    return Math.max(0.18, Math.min(0.72, +p.toFixed(4)));
+  }
+
+  function _approxRZ(yardline) {
+    if (yardline > 20) return null;
+    return +(0.155 + (20 - yardline) * 0.009).toFixed(4);
+  }
+
+  function _gridLookup(down, ydstogo, yardline, scoreDiff) {
+    if (!GRID || !GRID.length) return null;
+    let best = null, bestDist = Infinity;
+    for (const row of GRID) {
+      const d = Math.abs(row.down - down) * 40
+              + Math.abs(row.ydstogo - ydstogo) * 3
+              + Math.abs(row.yardline_100 - yardline)
+              + Math.abs(row.score_differential - scoreDiff) * 2;
+      if (d < bestDist) { bestDist = d; best = row; }
+    }
+    return best;
+  }
+
+  function predict(down, ydstogo, yardline, score) {
+    const grid = _gridLookup(down, ydstogo, yardline, score);
+    const epa     = grid ? grid.pred_epa     : _approxEPA(down, ydstogo, yardline, score);
+    const success = grid ? grid.pred_success : _approxSuccess(down, ydstogo, yardline);
+    const rz      = _approxRZ(yardline);
+    return { epa: +epa, success: +success, rz };
+  }
+
+  async function loadGrid() {
+    try {
+      const r = await fetch('./data/prediction_grid.json');
+      if (r.ok) GRID = await r.json();
+    } catch(e) {}
+  }
+  loadGrid();
+
+  // ── tabs ──────────────────────────────────────────────────────────────────
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── toggles ───────────────────────────────────────────────────────────────
+  function setDown(v, btn)     { S.down = v;        activateTog(btn); }
+  function setPlayType(v, btn) { S.playType = v;    activateTog(btn); }
+  function activateTog(btn) {
+    btn.closest('.toggle-group').querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ── read inputs ───────────────────────────────────────────────────────────
+  function readInputs() {
+    S.ydstogo  = parseInt(document.getElementById('ydstogo').value)    || 10;
+    S.yardline = parseInt(document.getElementById('yardline').value)   || 50;
+    S.score    = parseInt(document.getElementById('score_diff').value) || 0;
+    S.secs     = parseInt(document.getElementById('game_secs').value)  || 900;
+  }
+
+  // ── run prediction ────────────────────────────────────────────────────────
+  function runPrediction() {
+    readInputs();
+    const res = predict(S.down, S.ydstogo, S.yardline, S.score);
+    renderMain(res);
+    history.unshift({ s: {...S}, res, time: new Date().toLocaleTimeString() });
+    renderHistory();
+  }
+
+  function renderMain(res) {
+    setStat('out-epa', (res.epa >= 0 ? '+' : '') + res.epa.toFixed(4), res.epa >= 0 ? 'pos' : 'neg');
+    setStat('out-sr',  (res.success * 100).toFixed(1) + '%', res.success >= 0.5 ? 'pos' : 'neg');
+    if (res.rz !== null) {
+      setStat('out-rz', (res.rz * 100).toFixed(1) + '%', res.rz >= 0.35 ? 'pos' : 'neg');
+    } else {
+      const e = document.getElementById('out-rz');
+      e.textContent = 'not in RZ'; e.className = 'stat-val na';
     }
   }
-  return 0;
-}
 
-function _approxEPA(down, ydstogo, yardline, scoreDiff) {
-  const base = {1:0.035,2:-0.005,3:-0.068,4:-0.22}[down]||0;
-  const dist  = -0.009 * Math.max(0, ydstogo - 7);
-  const fp    = 0.0012 * Math.min(35, 100 - yardline);
-  const score = -0.0008 * Math.abs(scoreDiff);
-  return +(base + dist + fp + score).toFixed(4);
-}
-
-function _approxSuccess(down, ydstogo, yardline) {
-  let p = 0.472 - (down-1)*0.032 - Math.max(0,ydstogo-7)*0.011;
-  p += 0.0008 * Math.min(30, 100-yardline);
-  return Math.max(0.18, Math.min(0.72, +p.toFixed(4)));
-}
-
-function _approxRZ(yardline) {
-  if (yardline > 20) return null;
-  return +(0.155 + (20-yardline)*0.009).toFixed(4);
-}
-
-function _gridLookup(down, ydstogo, yardline, scoreDiff) {
-  if (!GRID || !GRID.length) return null;
-  let best = null, bestDist = Infinity;
-  for (const row of GRID) {
-    const d = Math.abs(row.down-down) * 40
-            + Math.abs(row.ydstogo-ydstogo) * 3
-            + Math.abs(row.yardline_100-yardline)
-            + Math.abs(row.score_differential-scoreDiff) * 2;
-    if (d < bestDist) { bestDist=d; best=row; }
+  function setStat(id, val, cls) {
+    const e = document.getElementById(id);
+    e.textContent = val; e.className = 'stat-val ' + cls;
   }
-  return best;
-}
 
-function runPredict() {
-  const down     = parseInt(document.getElementById('p-down').value);
-  const ydstogo  = parseInt(document.getElementById('p-ydstogo').value);
-  const yardline = parseInt(document.getElementById('p-yardline').value);
-  const score    = parseInt(document.getElementById('p-score').value);
-
-  let epa, success, rz;
-  const grid = _gridLookup(down, ydstogo, yardline, score);
-
-  if (grid) {
-    epa     = grid.pred_epa;
-    success = grid.pred_success;
-  } else {
-    epa     = _approxEPA(down, ydstogo, yardline, score);
-    success = _approxSuccess(down, ydstogo, yardline);
+  // ── test plays ────────────────────────────────────────────────────────────
+  function loadTest(idx) {
+    const p = TEST_PLAYS[idx];
+    Object.assign(S, p);
+    document.getElementById('ydstogo').value   = p.ydstogo;
+    document.getElementById('yardline').value  = p.yardline;
+    document.getElementById('score_diff').value= p.score;
+    document.getElementById('game_secs').value = p.secs;
+    const downBtns = document.querySelectorAll('.toggle-group')[0].querySelectorAll('.toggle-btn');
+    downBtns.forEach((b, i) => b.classList.toggle('active', i === p.down - 1));
+    runPrediction();
   }
-  rz = _approxRZ(yardline);
 
-  const epaEl = document.getElementById('out-epa');
-  epaEl.textContent = (epa >= 0 ? '+' : '') + epa.toFixed(4);
-  epaEl.className   = 'num ' + (epa >= 0 ? 'pos' : 'neg');
+  // ── history ───────────────────────────────────────────────────────────────
+  function renderHistory() {
+    const body = document.getElementById('hist-body');
+    if (!history.length) {
+      body.innerHTML = '<tr><td colspan="8"><div class="empty">No predictions yet.</div></td></tr>';
+      return;
+    }
+    const dn = ['—','1st','2nd','3rd','4th'];
+    body.innerHTML = history.slice(0, 40).map((e, i) => {
+      const s = e.s, r = e.res;
+      const rzStr = r.rz !== null ? (r.rz * 100).toFixed(1) + '%' : '—';
+      return `<tr>
+        <td style="color:var(--muted);font-family:var(--mono);font-size:12px">${history.length - i}</td>
+        <td>${dn[s.down]} &amp; ${s.ydstogo}</td>
+        <td style="font-family:var(--mono)">${s.yardline}</td>
+        <td style="font-family:var(--mono)">${s.score >= 0 ? '+' : ''}${s.score}</td>
+        <td><span class="badge ${r.epa >= 0 ? 'badge-pos' : 'badge-neg'}">${r.epa >= 0 ? '+' : ''}${r.epa.toFixed(4)}</span></td>
+        <td style="font-family:var(--mono)">${(r.success * 100).toFixed(1)}%</td>
+        <td style="font-family:var(--mono)">${rzStr}</td>
+        <td style="color:var(--muted);font-size:12px">${e.time}</td>
+      </tr>`;
+    }).join('');
+  }
 
-  document.getElementById('out-success').textContent = (success * 100).toFixed(1) + '%';
-  document.getElementById('out-rz').textContent = rz !== null ? (rz*100).toFixed(1)+'%' : yardline <= 20 ? '\u2014' : 'not in RZ';
+  function clearHistory() { history = []; renderHistory(); }
 
-  document.getElementById('pred-out').style.display = 'block';
-}
+  // ── compare ───────────────────────────────────────────────────────────────
+  function runCompare(side) {
+    const s = {
+      down:     parseInt(document.getElementById(`c${side}-down`).value),
+      ydstogo:  parseInt(document.getElementById(`c${side}-ytg`).value),
+      yardline: parseInt(document.getElementById(`c${side}-yl`).value),
+      score:    parseInt(document.getElementById(`c${side}-sd`).value),
+      secs:     parseInt(document.getElementById(`c${side}-gs`).value)
+    };
+    const res = predict(s.down, s.ydstogo, s.yardline, s.score);
+    cmpRes[side] = res;
 
-loadGrid();
+    const el = document.getElementById(`c${side}-result`);
+    el.style.display = 'grid';
+    el.innerHTML = `
+      <div class="stat-cell"><div class="stat-lbl">EPA</div>
+        <div class="stat-val ${res.epa >= 0 ? 'pos' : 'neg'}">${res.epa >= 0 ? '+' : ''}${res.epa.toFixed(4)}</div></div>
+      <div class="stat-cell"><div class="stat-lbl">Success%</div>
+        <div class="stat-val ${res.success >= 0.5 ? 'pos' : 'neg'}">${(res.success*100).toFixed(1)}%</div></div>
+      <div class="stat-cell"><div class="stat-lbl">RZ TD</div>
+        <div class="stat-val">${res.rz !== null ? (res.rz*100).toFixed(1)+'%' : '—'}</div></div>`;
+
+    if (cmpRes.a && cmpRes.b) {
+      const a = cmpRes.a, b = cmpRes.b;
+      const dE = +(a.epa - b.epa).toFixed(4);
+      const dS = +((a.success - b.success) * 100).toFixed(1);
+      document.getElementById('delta-card').style.display = 'block';
+      document.getElementById('delta-row').innerHTML = `
+        <div class="stat-cell"><div class="stat-lbl">Δ EPA (A−B)</div>
+          <div class="stat-val ${dE >= 0 ? 'pos' : 'neg'}">${dE >= 0 ? '+' : ''}${dE}</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Δ Success%</div>
+          <div class="stat-val ${dS >= 0 ? 'pos' : 'neg'}">${dS >= 0 ? '+' : ''}${dS}%</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Δ RZ TD</div>
+          <div class="stat-val">${(a.rz !== null && b.rz !== null) ? ((a.rz-b.rz)*100).toFixed(1)+'%' : '—'}</div></div>`;
+    }
+  }
 </script>
 </body>
 </html>
