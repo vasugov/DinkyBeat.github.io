@@ -423,20 +423,22 @@
     return best;
   }
 
-  // wp_grid.json columns: score_differential, half_seconds_remaining, yardline_100, pred_wp
-  // distance normalized by typical grid step: score/3.5, secs/300, yardline/10
+  // Analytical NFL win-probability model (offense team perspective).
+  // The wp_grid.json pred_wp values are miscalibrated (near-step-function on score),
+  // so we use this formula instead.
+  // yardline : yards to opponent EZ (1 = opp GL, 99 = own GL)
+  // score    : score_differential (offense - defense)
+  // secs     : seconds remaining in the half (0-1800)
+  function _approxWP(yardline, score, secs) {
+    const fpAdj = (50 - yardline) * 0.0018;          // field position: ±0.09 end-to-end
+    const s = Math.max(secs, 30);                     // clamp to avoid near-zero
+    const scoreScale = 0.05 * Math.sqrt(1800 / s);   // ~0.05 at fresh half, ~0.39 at 30s left
+    const logit = score * scoreScale + fpAdj;
+    return Math.max(0.01, Math.min(0.99, 1 / (1 + Math.exp(-logit))));
+  }
+
   function _wpLookup(yardline, score, secs) {
-    if (!WP_GRID || !WP_GRID.length) return null;
-    const s = Math.max(secs, 1); // clamp to avoid secs=0 game-over rows
-    let best = null, bestDist = Infinity;
-    for (const row of WP_GRID) {
-      if (row.half_seconds_remaining === 0) continue; // skip game-over rows
-      const d = Math.abs(row.yardline_100 - yardline) / 10
-              + Math.abs(row.score_differential - score) / 3.5
-              + Math.abs(row.half_seconds_remaining - s) / 300;
-      if (d < bestDist) { bestDist = d; best = row; }
-    }
-    return best ? best.pred_wp : null;
+    return _approxWP(yardline, score, secs);
   }
 
   // drive_grid.json columns: yardline_100, score_differential, half_seconds_remaining,
