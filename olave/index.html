@@ -114,7 +114,7 @@
     .wp-lbl-off { font-size: 12px; font-weight: 500; color: var(--accent); }
     .wp-lbl-def { font-size: 12px; color: var(--muted); }
     .wp-track { height: 6px; background: var(--dim); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
-    .wp-fill  { height: 100%; background: var(--accent); border-radius: 3px 0 0 3px; width: 50%; }
+    .wp-fill  { height: 100%; background: var(--accent); border-radius: 3px 0 0 3px; width: 50%; transition: width 0.3s ease; }
     .wp-vals  { display: flex; justify-content: space-between; }
     .wp-v-off { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--accent); }
     .wp-v-def { font-family: var(--mono); font-size: 20px; color: var(--muted); }
@@ -124,29 +124,10 @@
     .drive-row  { display: flex; align-items: center; gap: 10px; }
     .drive-name { width: 72px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
     .drive-track { flex: 1; height: 4px; background: var(--dim); border-radius: 2px; overflow: hidden; }
-    .drive-fill  { height: 100%; border-radius: 2px; width: 0%; }
+    .drive-fill  { height: 100%; border-radius: 2px; width: 0%; transition: width 0.3s ease; }
     .fill-td { background: var(--green); } .fill-fg { background: var(--accent); }
     .fill-punt { background: var(--muted); } .fill-to { background: var(--red); }
     .drive-pct { width: 38px; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text); }
-
-    /* incomplete overlay */
-    .incomplete-overlay {
-      position: relative;
-    }
-    .incomplete-overlay::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(245,244,241,0.7);
-      border-radius: 7px;
-      pointer-events: none;
-    }
-    .incomplete-note {
-      font-size: 11px;
-      color: var(--muted);
-      font-style: italic;
-      margin-top: 10px;
-    }
 
     /* test plays */
     .test-section { margin-top: 32px; border-top: 1px solid var(--border); padding-top: 20px; }
@@ -254,43 +235,37 @@
         <header>
           <span class="label">Win Probability</span>
         </header>
-        <div class="incomplete-overlay">
-          <div class="wp-header">
-            <span class="wp-lbl-off">Offense</span>
-            <span class="wp-lbl-def">Defense</span>
+        <div class="wp-header">
+          <span class="wp-lbl-off">Offense</span>
+          <span class="wp-lbl-def">Defense</span>
+        </div>
+        <div class="wp-track"><div class="wp-fill" id="wp-bar"></div></div>
+        <div class="wp-vals">
+          <span class="wp-v-off" id="wp-off">—</span>
+          <span class="wp-v-def" id="wp-def">—</span>
+        </div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:6px;overflow:hidden;">
+          <div class="stat-cell" style="padding:12px 14px 10px;">
+            <div class="stat-lbl">Implied Odds (Off.)</div>
+            <div class="stat-val na" id="out-odds-off" style="font-size:20px;">—</div>
+            <div class="stat-sub">moneyline</div>
           </div>
-          <div class="wp-track"><div class="wp-fill" id="wp-bar"></div></div>
-          <div class="wp-vals">
-            <span class="wp-v-off" id="wp-off">—</span>
-            <span class="wp-v-def" id="wp-def">—</span>
-          </div>
-          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:6px;overflow:hidden;">
-            <div class="stat-cell" style="padding:12px 14px 10px;">
-              <div class="stat-lbl">Implied Odds (Off.)</div>
-              <div class="stat-val na" id="out-odds-off" style="font-size:20px;">—</div>
-              <div class="stat-sub">moneyline</div>
-            </div>
-            <div class="stat-cell" style="padding:12px 14px 10px;">
-              <div class="stat-lbl">Implied Odds (Def.)</div>
-              <div class="stat-val na" id="out-odds-def" style="font-size:20px;">—</div>
-              <div class="stat-sub">moneyline</div>
-            </div>
+          <div class="stat-cell" style="padding:12px 14px 10px;">
+            <div class="stat-lbl">Implied Odds (Def.)</div>
+            <div class="stat-val na" id="out-odds-def" style="font-size:20px;">—</div>
+            <div class="stat-sub">moneyline</div>
           </div>
         </div>
-        <p class="incomplete-note">Win probability model not yet complete — odds will populate when available.</p>
       </article>
 
       <article>
         <header><span class="label">Drive Outcome</span></header>
-        <div class="incomplete-overlay">
-          <div class="drive-list">
-            <div class="drive-row"><div class="drive-name">Touchdown</div><div class="drive-track"><div class="drive-fill fill-td" id="do-td"></div></div><div class="drive-pct" id="do-td-p">—</div></div>
-            <div class="drive-row"><div class="drive-name">Field Goal</div><div class="drive-track"><div class="drive-fill fill-fg" id="do-fg"></div></div><div class="drive-pct" id="do-fg-p">—</div></div>
-            <div class="drive-row"><div class="drive-name">Punt</div><div class="drive-track"><div class="drive-fill fill-punt" id="do-punt"></div></div><div class="drive-pct" id="do-punt-p">—</div></div>
-            <div class="drive-row"><div class="drive-name">Turnover</div><div class="drive-track"><div class="drive-fill fill-to" id="do-to"></div></div><div class="drive-pct" id="do-to-p">—</div></div>
-          </div>
+        <div class="drive-list">
+          <div class="drive-row"><div class="drive-name">Touchdown</div><div class="drive-track"><div class="drive-fill fill-td" id="do-td"></div></div><div class="drive-pct" id="do-td-p">—</div></div>
+          <div class="drive-row"><div class="drive-name">Field Goal</div><div class="drive-track"><div class="drive-fill fill-fg" id="do-fg"></div></div><div class="drive-pct" id="do-fg-p">—</div></div>
+          <div class="drive-row"><div class="drive-name">Punt</div><div class="drive-track"><div class="drive-fill fill-punt" id="do-punt"></div></div><div class="drive-pct" id="do-punt-p">—</div></div>
+          <div class="drive-row"><div class="drive-name">Other</div><div class="drive-track"><div class="drive-fill fill-to" id="do-to"></div></div><div class="drive-pct" id="do-to-p">—</div></div>
         </div>
-        <p class="incomplete-note">Drive outcome model not yet complete.</p>
       </article>
 
     </div>
@@ -364,10 +339,10 @@
     <table>
       <thead><tr>
         <th>#</th><th>Down &amp; Dist</th><th>Yardline</th>
-        <th>Score Diff</th><th>EPA</th><th>Success%</th><th>RZ TD</th><th>Time</th>
+        <th>Score Diff</th><th>EPA</th><th>Success%</th><th>RZ TD</th><th>WP</th><th>Time</th>
       </tr></thead>
       <tbody id="hist-body">
-        <tr><td colspan="8"><div class="empty">No predictions yet.</div></td></tr>
+        <tr><td colspan="9"><div class="empty">No predictions yet.</div></td></tr>
       </tbody>
     </table>
   </article>
@@ -379,6 +354,8 @@
   let history = [];
   let cmpRes = {};
   let GRID = null;
+  let WP_GRID = null;
+  let DRIVE_GRID = null;
 
   const TEST_PLAYS = [
     { down:1, ydstogo:10, yardline:75, score:0,   secs:960,  playType:'pass' },
@@ -386,7 +363,33 @@
     { down:3, ydstogo:18, yardline:90, score:-14, secs:115,  playType:'pass' }
   ];
 
-  // ── model (your actual logic from index.html) ─────────────────────────────
+  // ── grid loaders ───────────────────────────────────────────────────────────
+  async function loadGrid() {
+    try {
+      const r = await fetch('./data/prediction_grid.json');
+      if (r.ok) GRID = await r.json();
+    } catch(e) {}
+  }
+
+  async function loadWPGrid() {
+    try {
+      const r = await fetch('./data/wp_grid.json');
+      if (r.ok) WP_GRID = await r.json();
+    } catch(e) {}
+  }
+
+  async function loadDriveGrid() {
+    try {
+      const r = await fetch('./data/drive_grid.json');
+      if (r.ok) DRIVE_GRID = await r.json();
+    } catch(e) {}
+  }
+
+  loadGrid();
+  loadWPGrid();
+  loadDriveGrid();
+
+  // ── fallback approximations ────────────────────────────────────────────────
   function _approxEPA(down, ydstogo, yardline, scoreDiff) {
     const base  = {1:0.035, 2:-0.005, 3:-0.068, 4:-0.22}[down] || 0;
     const dist  = -0.009 * Math.max(0, ydstogo - 7);
@@ -406,6 +409,7 @@
     return +(0.155 + (20 - yardline) * 0.009).toFixed(4);
   }
 
+  // ── grid lookups ───────────────────────────────────────────────────────────
   function _gridLookup(down, ydstogo, yardline, scoreDiff) {
     if (!GRID || !GRID.length) return null;
     let best = null, bestDist = Infinity;
@@ -419,21 +423,49 @@
     return best;
   }
 
-  function predict(down, ydstogo, yardline, score) {
+  // wp_grid.json columns: score_differential, half_seconds_remaining, yardline_100, pred_wp
+  function _wpLookup(yardline, score, secs) {
+    if (!WP_GRID || !WP_GRID.length) return null;
+    let best = null, bestDist = Infinity;
+    for (const row of WP_GRID) {
+      const d = Math.abs(row.yardline_100 - yardline)
+              + Math.abs(row.score_differential - score) * 4
+              + Math.abs(row.half_seconds_remaining - secs) * 0.008;
+      if (d < bestDist) { bestDist = d; best = row; }
+    }
+    return best ? best.pred_wp : null;
+  }
+
+  // drive_grid.json columns: yardline_100, score_differential, half_seconds_remaining,
+  //                          p_touchdown, p_field_goal, p_punt, p_turnover, p_other
+  function _driveLookup(yardline, score, secs) {
+    if (!DRIVE_GRID || !DRIVE_GRID.length) return null;
+    let best = null, bestDist = Infinity;
+    for (const row of DRIVE_GRID) {
+      const d = Math.abs(row.yardline_100 - yardline)
+              + Math.abs(row.score_differential - score) * 3
+              + Math.abs(row.half_seconds_remaining - secs) * 0.008;
+      if (d < bestDist) { bestDist = d; best = row; }
+    }
+    if (!best) return null;
+    return {
+      touchdown: best.p_touchdown,
+      field_goal: best.p_field_goal,
+      punt: best.p_punt,
+      other: best.p_other,
+    };
+  }
+
+  // ── main predict ───────────────────────────────────────────────────────────
+  function predict(down, ydstogo, yardline, score, secs) {
     const grid = _gridLookup(down, ydstogo, yardline, score);
     const epa     = grid ? grid.pred_epa     : _approxEPA(down, ydstogo, yardline, score);
     const success = grid ? grid.pred_success : _approxSuccess(down, ydstogo, yardline);
     const rz      = _approxRZ(yardline);
-    return { epa: +epa, success: +success, rz };
+    const wp      = _wpLookup(yardline, score, secs);
+    const drive   = _driveLookup(yardline, score, secs);
+    return { epa: +epa, success: +success, rz, wp, drive };
   }
-
-  async function loadGrid() {
-    try {
-      const r = await fetch('./data/prediction_grid.json');
-      if (r.ok) GRID = await r.json();
-    } catch(e) {}
-  }
-  loadGrid();
 
   // ── tabs ──────────────────────────────────────────────────────────────────
   function switchTab(tab, btn) {
@@ -462,19 +494,19 @@
   // ── run prediction ────────────────────────────────────────────────────────
   function runPrediction() {
     readInputs();
-    const res = predict(S.down, S.ydstogo, S.yardline, S.score);
+    const res = predict(S.down, S.ydstogo, S.yardline, S.score, S.secs);
     renderMain(res);
     history.unshift({ s: {...S}, res, time: new Date().toLocaleTimeString() });
     renderHistory();
   }
 
   function impliedOdds(wp) {
-    // wp is 0–1. Returns American odds string e.g. "-170" or "+145"
     if (wp >= 0.5) return '-' + Math.round(wp / (1 - wp) * 100);
     return '+' + Math.round((1 - wp) / wp * 100);
   }
 
   function renderMain(res) {
+    // EPA / Success / RZ
     setStat('out-epa', (res.epa >= 0 ? '+' : '') + res.epa.toFixed(4), res.epa >= 0 ? 'pos' : 'neg');
     setStat('out-sr',  (res.success * 100).toFixed(1) + '%', res.success >= 0.5 ? 'pos' : 'neg');
     if (res.rz !== null) {
@@ -483,15 +515,43 @@
       const e = document.getElementById('out-rz');
       e.textContent = 'not in RZ'; e.className = 'stat-val na';
     }
-    // implied odds — only live once WP model is wired; currently res.wp is undefined
-    if (res.wp !== undefined && res.wp !== null) {
-      const oddsOff = impliedOdds(res.wp);
-      const oddsDef = impliedOdds(1 - res.wp);
-      const offEl = document.getElementById('out-odds-off');
-      const defEl = document.getElementById('out-odds-def');
-      offEl.textContent = oddsOff; offEl.className = 'stat-val ' + (res.wp >= 0.5 ? 'neg' : 'pos');
-      defEl.textContent = oddsDef; defEl.className = 'stat-val ' + (res.wp <  0.5 ? 'neg' : 'pos');
-      offEl.style.fontSize = '20px'; defEl.style.fontSize = '20px';
+
+    // Win Probability
+    if (res.wp !== null && res.wp !== undefined) {
+      const wp = res.wp;
+      const wpOff = (wp * 100).toFixed(0) + '%';
+      const wpDef = ((1 - wp) * 100).toFixed(0) + '%';
+
+      document.getElementById('wp-bar').style.width = (wp * 100) + '%';
+
+      const offEl = document.getElementById('wp-off');
+      offEl.textContent = wpOff;
+      offEl.className = 'wp-v-off';
+
+      const defEl = document.getElementById('wp-def');
+      defEl.textContent = wpDef;
+      defEl.className = 'wp-v-def';
+
+      const oddsOff = document.getElementById('out-odds-off');
+      const oddsDef = document.getElementById('out-odds-def');
+      oddsOff.textContent = impliedOdds(wp);
+      oddsOff.className = 'stat-val ' + (wp >= 0.5 ? 'neg' : 'pos');
+      oddsOff.style.fontSize = '20px';
+      oddsDef.textContent = impliedOdds(1 - wp);
+      oddsDef.className = 'stat-val ' + (wp < 0.5 ? 'neg' : 'pos');
+      oddsDef.style.fontSize = '20px';
+    }
+
+    // Drive Outcome
+    if (res.drive) {
+      const d = res.drive;
+      const keys = ['td', 'fg', 'punt', 'to'];
+      const vals = [d.touchdown, d.field_goal, d.punt, d.other];
+      keys.forEach((k, i) => {
+        const pct = (vals[i] * 100).toFixed(0) + '%';
+        document.getElementById('do-' + k).style.width = (vals[i] * 100) + '%';
+        document.getElementById('do-' + k + '-p').textContent = pct;
+      });
     }
   }
 
@@ -517,13 +577,14 @@
   function renderHistory() {
     const body = document.getElementById('hist-body');
     if (!history.length) {
-      body.innerHTML = '<tr><td colspan="8"><div class="empty">No predictions yet.</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="9"><div class="empty">No predictions yet.</div></td></tr>';
       return;
     }
     const dn = ['—','1st','2nd','3rd','4th'];
     body.innerHTML = history.slice(0, 40).map((e, i) => {
       const s = e.s, r = e.res;
       const rzStr = r.rz !== null ? (r.rz * 100).toFixed(1) + '%' : '—';
+      const wpStr = (r.wp !== null && r.wp !== undefined) ? (r.wp * 100).toFixed(0) + '%' : '—';
       return `<tr>
         <td style="color:var(--muted);font-family:var(--mono);font-size:12px">${history.length - i}</td>
         <td>${dn[s.down]} &amp; ${s.ydstogo}</td>
@@ -532,6 +593,7 @@
         <td><span class="badge ${r.epa >= 0 ? 'badge-pos' : 'badge-neg'}">${r.epa >= 0 ? '+' : ''}${r.epa.toFixed(4)}</span></td>
         <td style="font-family:var(--mono)">${(r.success * 100).toFixed(1)}%</td>
         <td style="font-family:var(--mono)">${rzStr}</td>
+        <td style="font-family:var(--mono)">${wpStr}</td>
         <td style="color:var(--muted);font-size:12px">${e.time}</td>
       </tr>`;
     }).join('');
@@ -548,7 +610,7 @@
       score:    parseInt(document.getElementById(`c${side}-sd`).value),
       secs:     parseInt(document.getElementById(`c${side}-gs`).value)
     };
-    const res = predict(s.down, s.ydstogo, s.yardline, s.score);
+    const res = predict(s.down, s.ydstogo, s.yardline, s.score, s.secs);
     cmpRes[side] = res;
 
     const el = document.getElementById(`c${side}-result`);
