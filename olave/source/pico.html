@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLAVE-NFL</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pico-font-family-sans-serif: 'DM Sans', sans-serif;
+      --pico-font-family: 'DM Sans', sans-serif;
+      --bg:        #f5f4f1;
+      --surface:   #ffffff;
+      --border:    #e2e0db;
+      --border2:   #d0cec8;
+      --text:      #1a1916;
+      --muted:     #7a7870;
+      --dim:       #e8e6e1;
+      --accent:    #2b5be0;
+      --accent-bg: #eef1fc;
+      --green:     #1a7f4e;
+      --green-bg:  #eaf5ef;
+      --red:       #c0392b;
+      --red-bg:    #fdf0ee;
+      --mono:      'DM Mono', monospace;
+      --pico-background-color: var(--bg);
+      --pico-color: var(--text);
+      --pico-primary: var(--accent);
+      --pico-primary-hover: #1e47c8;
+      --pico-border-color: var(--border);
+      --pico-card-background-color: var(--surface);
+      --pico-card-border-color: var(--border);
+      --pico-card-sectioning-background-color: var(--bg);
+      --pico-form-element-background-color: var(--bg);
+      --pico-form-element-border-color: var(--border2);
+      --pico-form-element-color: var(--text);
+      --pico-form-element-focus-color: var(--accent);
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      margin-bottom: 0;
+    }
+    .logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+    .nav {
+      display: flex;
+      gap: 2px;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      padding: 6px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      margin: 0;
+      width: auto;
+    }
+    .nav-btn:hover { background: var(--dim); color: var(--text); }
+    .nav-btn.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+
+    /* ── PAGES ── */
+    .page { display: none; padding: 28px 32px; max-width: 1080px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── UTILITY ── */
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-20 { margin-bottom: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(138px,1fr)); gap: 12px; }
+
+    /* ── CARD (override pico) ── */
+    article {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      margin: 0;
+    }
+    article > header {
+      background: none;
+      border-bottom: 1px solid var(--border);
+      padding: 0 0 12px 0;
+      margin-bottom: 16px;
+      height: auto;
+      position: static;
+      display: block;
+    }
+    article > header .label { display: block; }
+
+    /* ── TOGGLE GROUP ── */
+    .toggle-group { display: flex; margin-bottom: 0; }
+    .toggle-btn {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      padding: 8px 6px;
+      cursor: pointer;
+      transition: all 0.1s;
+      text-align: center;
+      margin: 0;
+      width: auto;
+    }
+    .toggle-btn:not(:last-child) { border-right: none; }
+    .toggle-btn:first-child { border-radius: 5px 0 0 5px; }
+    .toggle-btn:last-child  { border-radius: 0 5px 5px 0; }
+    .toggle-btn.active {
+      background: var(--accent-bg);
+      border-color: rgba(43,91,224,0.3);
+      color: var(--accent);
+      font-weight: 500;
+      position: relative; z-index: 1;
+    }
+
+    /* pico form overrides */
+    input, select {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      margin-bottom: 0;
+      padding: 8px 10px;
+      height: auto;
+      background: var(--bg);
+      border-color: var(--border2);
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(43,91,224,0.08);
+    }
+    label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+
+    /* pico button overrides */
+    button[type=submit], .predict-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 16px;
+      transition: opacity 0.15s;
+    }
+    button[type=submit]:hover, .predict-btn:hover { opacity: 0.88; }
+
+    /* ── STAT ROW ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+    }
+    .stat-cell { background: var(--surface); padding: 16px 16px 14px; }
+    .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .stat-val { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; transition: color 0.2s; }
+    .stat-val.pos { color: var(--green); }
+    .stat-val.neg { color: var(--red); }
+    .stat-val.na  { color: var(--border2); font-size: 18px; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* ── WIN PROB ── */
+    .wp-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .wp-lbl-off { font-size: 12px; font-weight: 500; color: var(--accent); }
+    .wp-lbl-def { font-size: 12px; color: var(--muted); }
+    .wp-track { height: 6px; background: var(--dim); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+    .wp-fill  { height: 100%; background: var(--accent); border-radius: 3px 0 0 3px; transition: width 0.45s cubic-bezier(.4,0,.2,1); width: 50%; }
+    .wp-vals  { display: flex; justify-content: space-between; }
+    .wp-v-off { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--accent); }
+    .wp-v-def { font-family: var(--mono); font-size: 20px; color: var(--muted); }
+
+    /* ── DRIVE OUTCOMES ── */
+    .drive-list { display: flex; flex-direction: column; gap: 11px; }
+    .drive-row  { display: flex; align-items: center; gap: 10px; }
+    .drive-name { width: 72px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+    .drive-track { flex: 1; height: 4px; background: var(--dim); border-radius: 2px; overflow: hidden; }
+    .drive-fill  { height: 100%; border-radius: 2px; transition: width 0.45s cubic-bezier(.4,0,.2,1); width: 0%; }
+    .fill-td   { background: var(--green); }
+    .fill-fg   { background: var(--accent); }
+    .fill-punt { background: var(--muted); }
+    .fill-to   { background: var(--red); }
+    .drive-pct { width: 38px; text-align: right; font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+    /* ── TEST PLAYS SECTION ── */
+    .test-section {
+      margin-top: 32px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+    .test-plays { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 12px; }
+    .test-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.12s;
+    }
+    .test-card:hover { border-color: var(--accent); }
+    .test-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .test-card-desc { font-size: 13px; color: var(--text); margin-bottom: 6px; font-weight: 500; }
+    .test-card-detail { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+    /* ── HISTORY TABLE ── */
+    .card-table { padding: 0; overflow: hidden; }
+    table { margin: 0; font-size: 13px; }
+    thead th { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; }
+    tbody td { padding: 9px 12px; }
+    tbody tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+    .badge-pos { background: var(--green-bg); color: var(--green); }
+    .badge-neg { background: var(--red-bg); color: var(--red); }
+    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+
+    .clear-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.1s;
+      width: auto;
+      margin: 0;
+    }
+    .clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+    @keyframes shimmer { 0%,100%{opacity:.4} 50%{opacity:.9} }
+    .loading { animation: shimmer 0.9s ease-in-out infinite; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">OLAVE-NFL</span>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('predictor',this)">Predictor</button>
+    <button class="nav-btn" onclick="switchTab('compare',this)">Compare</button>
+    <button class="nav-btn" onclick="switchTab('history',this)">History</button>
+  </nav>
+  <span></span>
+</header>
+
+<!-- ══ PREDICTOR ══ -->
+<div class="page active" id="page-predictor">
+  <div class="grid-2">
+
+    <!-- INPUTS -->
+    <article>
+      <header><span class="label">Game State</span></header>
+
+      <div class="mb-16">
+        <label>Down</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setDown(1,this)">1st</button>
+          <button class="toggle-btn" onclick="setDown(2,this)">2nd</button>
+          <button class="toggle-btn" onclick="setDown(3,this)">3rd</button>
+          <button class="toggle-btn" onclick="setDown(4,this)">4th</button>
+        </div>
+      </div>
+
+      <div class="grid-inputs mb-16">
+        <div><label for="ydstogo">Yards to Go</label><input type="number" id="ydstogo" value="10" min="1" max="99"></div>
+        <div><label for="yardline">Yardline (to EZ)</label><input type="number" id="yardline" value="65" min="1" max="99"></div>
+        <div><label for="score_diff">Score Diff</label><input type="number" id="score_diff" value="0" min="-50" max="50"></div>
+        <div><label for="game_secs">Secs Remaining</label><input type="number" id="game_secs" value="1800" min="0" max="3600"></div>
+        <div>
+          <label for="off_to">Off. Timeouts</label>
+          <select id="off_to"><option value="3" selected>3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select>
+        </div>
+        <div>
+          <label for="def_to">Def. Timeouts</label>
+          <select id="def_to"><option value="3" selected>3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option></select>
+        </div>
+      </div>
+
+      <div class="grid-2 mb-16">
+        <div>
+          <label>Formation</label>
+          <div class="toggle-group">
+            <button class="toggle-btn active" onclick="setFormation(0,this)">Under</button>
+            <button class="toggle-btn" onclick="setFormation(1,this)">Shotgun</button>
+          </div>
+        </div>
+        <div>
+          <label>Huddle</label>
+          <div class="toggle-group">
+            <button class="toggle-btn active" onclick="setHuddle(0,this)">Huddle</button>
+            <button class="toggle-btn" onclick="setHuddle(1,this)">No-Huddle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-16">
+        <label>Play Type</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setPlayType(1,this)">Pass</button>
+          <button class="toggle-btn" onclick="setPlayType(0,this)">Run</button>
+        </div>
+      </div>
+
+      <button type="submit" onclick="runPrediction()">Run Prediction</button>
+    </article>
+
+    <!-- OUTPUTS -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <article>
+        <header><span class="label">Play Prediction</span></header>
+        <div class="stat-row">
+          <div class="stat-cell">
+            <div class="stat-lbl">EPA</div>
+            <div class="stat-val na" id="out-epa">—</div>
+            <div class="stat-sub">exp. pts added</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">Success Rate</div>
+            <div class="stat-val na" id="out-sr">—</div>
+            <div class="stat-sub">prob. EPA &gt; 0</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-lbl">Red Zone TD</div>
+            <div class="stat-val na" id="out-rz">—</div>
+            <div class="stat-sub">if applicable</div>
+          </div>
+        </div>
+      </article>
+
+      <article>
+        <header><span class="label">Win Probability</span></header>
+        <div class="wp-header">
+          <span class="wp-lbl-off">Offense</span>
+          <span class="wp-lbl-def">Defense</span>
+        </div>
+        <div class="wp-track"><div class="wp-fill" id="wp-bar"></div></div>
+        <div class="wp-vals">
+          <span class="wp-v-off" id="wp-off">—</span>
+          <span class="wp-v-def" id="wp-def">—</span>
+        </div>
+      </article>
+
+      <article>
+        <header><span class="label">Drive Outcome</span></header>
+        <div class="drive-list">
+          <div class="drive-row"><div class="drive-name">Touchdown</div><div class="drive-track"><div class="drive-fill fill-td" id="do-td"></div></div><div class="drive-pct" id="do-td-p">—</div></div>
+          <div class="drive-row"><div class="drive-name">Field Goal</div><div class="drive-track"><div class="drive-fill fill-fg" id="do-fg"></div></div><div class="drive-pct" id="do-fg-p">—</div></div>
+          <div class="drive-row"><div class="drive-name">Punt</div><div class="drive-track"><div class="drive-fill fill-punt" id="do-punt"></div></div><div class="drive-pct" id="do-punt-p">—</div></div>
+          <div class="drive-row"><div class="drive-name">Turnover</div><div class="drive-track"><div class="drive-fill fill-to" id="do-to"></div></div><div class="drive-pct" id="do-to-p">—</div></div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- TEST PLAYS -->
+  <div class="test-section">
+    <span class="label">Test Plays</span>
+    <div class="test-plays">
+      <div class="test-card" onclick="loadTest(0)">
+        <div class="test-card-label">Neutral</div>
+        <div class="test-card-desc">1st &amp; 10 · Own 25</div>
+        <div class="test-card-detail">Tied · 2Q · 8:00 left</div>
+      </div>
+      <div class="test-card" onclick="loadTest(1)">
+        <div class="test-card-label">Favorable</div>
+        <div class="test-card-desc">3rd &amp; 2 · Opp. 8</div>
+        <div class="test-card-detail">Up 3 · 4Q · 2:30 left</div>
+      </div>
+      <div class="test-card" onclick="loadTest(2)">
+        <div class="test-card-label">Unfavorable</div>
+        <div class="test-card-desc">3rd &amp; 18 · Own 10</div>
+        <div class="test-card-detail">Down 14 · 4Q · 1:55 left</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPARE ══ -->
+<div class="page" id="page-compare">
+  <span class="label">Compare Two Plays</span>
+  <div class="grid-2" style="margin-top:14px;margin-bottom:16px;">
+    <article>
+      <header><span class="label">Play A</span></header>
+      <div class="grid-inputs mb-16">
+        <div><label>Down</label><select id="ca-down"><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option></select></div>
+        <div><label>Yds to Go</label><input type="number" id="ca-ytg" value="10" min="1" max="99"></div>
+        <div><label>Yardline</label><input type="number" id="ca-yl" value="50" min="1" max="99"></div>
+        <div><label>Score Diff</label><input type="number" id="ca-sd" value="0"></div>
+        <div><label>Secs Left</label><input type="number" id="ca-gs" value="1800"></div>
+      </div>
+      <button type="submit" onclick="runCompare('a')" style="margin-top:0">Predict A</button>
+      <div id="ca-result" style="margin-top:14px;display:none;" class="stat-row"></div>
+    </article>
+    <article>
+      <header><span class="label">Play B</span></header>
+      <div class="grid-inputs mb-16">
+        <div><label>Down</label><select id="cb-down"><option value="1">1st</option><option value="2">2nd</option><option value="3" selected>3rd</option><option value="4">4th</option></select></div>
+        <div><label>Yds to Go</label><input type="number" id="cb-ytg" value="15" min="1" max="99"></div>
+        <div><label>Yardline</label><input type="number" id="cb-yl" value="20" min="1" max="99"></div>
+        <div><label>Score Diff</label><input type="number" id="cb-sd" value="-10"></div>
+        <div><label>Secs Left</label><input type="number" id="cb-gs" value="120"></div>
+      </div>
+      <button type="submit" onclick="runCompare('b')" style="margin-top:0">Predict B</button>
+      <div id="cb-result" style="margin-top:14px;display:none;" class="stat-row"></div>
+    </article>
+  </div>
+  <article id="delta-card" style="display:none;">
+    <header><span class="label">Delta (A − B)</span></header>
+    <div class="stat-row" id="delta-row"></div>
+  </article>
+</div>
+
+<!-- ══ HISTORY ══ -->
+<div class="page" id="page-history">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <span class="label">Prediction Log</span>
+    <button class="clear-btn" onclick="clearHistory()">Clear</button>
+  </div>
+  <article class="card-table">
+    <table>
+      <thead><tr>
+        <th>#</th><th>Down &amp; Dist</th><th>Yardline</th>
+        <th>Score Diff</th><th>EPA</th><th>Success%</th>
+        <th>Win%</th><th>Drive Fav</th><th>Time</th>
+      </tr></thead>
+      <tbody id="hist-body">
+        <tr><td colspan="9"><div class="empty">No predictions yet.</div></td></tr>
+      </tbody>
+    </table>
+  </article>
+</div>
+
+<script>
+  let S = { down:1, ydstogo:10, yardline_100:65, score_differential:0,
+    game_seconds_remaining:1800, posteam_timeouts_remaining:3,
+    defteam_timeouts_remaining:3, shotgun_flag:0, no_huddle_flag:0, play_type_bin:1 };
+  let history = [];
+  let cmpRes = {};
+
+  const TEST_PLAYS = [
+    { down:1, ydstogo:10, yardline_100:75, score_differential:0,  game_seconds_remaining:1920, shotgun_flag:0, no_huddle_flag:0, play_type_bin:1, posteam_timeouts_remaining:3, defteam_timeouts_remaining:3 },
+    { down:3, ydstogo:2,  yardline_100:8,  score_differential:3,  game_seconds_remaining:150,  shotgun_flag:1, no_huddle_flag:0, play_type_bin:1, posteam_timeouts_remaining:2, defteam_timeouts_remaining:1 },
+    { down:3, ydstogo:18, yardline_100:90, score_differential:-14,game_seconds_remaining:115,  shotgun_flag:1, no_huddle_flag:1, play_type_bin:1, posteam_timeouts_remaining:1, defteam_timeouts_remaining:3 }
+  ];
+
+  function loadTest(idx) {
+    const p = TEST_PLAYS[idx];
+    Object.assign(S, p);
+    document.getElementById('ydstogo').value   = p.ydstogo;
+    document.getElementById('yardline').value  = p.yardline_100;
+    document.getElementById('score_diff').value= p.score_differential;
+    document.getElementById('game_secs').value = p.game_seconds_remaining;
+    document.getElementById('off_to').value    = p.posteam_timeouts_remaining;
+    document.getElementById('def_to').value    = p.defteam_timeouts_remaining;
+    const downBtns = document.querySelectorAll('.toggle-group')[0].querySelectorAll('.toggle-btn');
+    downBtns.forEach((b,i) => b.classList.toggle('active', i === p.down - 1));
+    runPrediction();
+  }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function setDown(v,btn)      { S.down=v;          activateTog(btn); }
+  function setFormation(v,btn) { S.shotgun_flag=v;  activateTog(btn); }
+  function setHuddle(v,btn)    { S.no_huddle_flag=v; activateTog(btn); }
+  function setPlayType(v,btn)  { S.play_type_bin=v; activateTog(btn); }
+  function activateTog(btn) {
+    btn.closest('.toggle-group').querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function readInputs() {
+    S.ydstogo               = +document.getElementById('ydstogo').value   || 10;
+    S.yardline_100          = +document.getElementById('yardline').value  || 65;
+    S.score_differential    = +document.getElementById('score_diff').value|| 0;
+    S.game_seconds_remaining= +document.getElementById('game_secs').value || 1800;
+    S.posteam_timeouts_remaining = +document.getElementById('off_to').value;
+    S.defteam_timeouts_remaining = +document.getElementById('def_to').value;
+  }
+
+  function derive(s) {
+    const {down:d, ydstogo:y, yardline_100:l, score_differential:sc, game_seconds_remaining:g} = s;
+    return { ...s,
+      down_x_ydstogo: d*y, yardline_x_down: l*d, score_x_time: sc*(g/3600),
+      ydstogo_clipped: Math.min(y,20), field_position_norm: (100-l)/100,
+      score_abs: Math.abs(sc), time_pressure: Math.abs(sc)/(g/3600+0.01),
+      is_two_minute: g<=120?1:0, is_final_two: g<=120?1:0,
+      is_4th_quarter: g<=900?1:0, is_red_zone: l<=20?1:0,
+      is_goal_to_go: y>=l?1:0, half_seconds_remaining: g%1800
+    };
+  }
+
+  function mockModel(f) {
+    const {yardline_100:l, down:d, ydstogo:y, score_differential:sc, game_seconds_remaining:g} = f;
+    let epa = (100-l)/100*1.8 - 0.3;
+    if(d===3&&y>7) epa -= 0.55; if(d===1) epa += 0.12;
+    if(l<=20) epa += 0.4; epa += (Math.random()-0.5)*0.3;
+    const sr = Math.max(0.05, Math.min(0.92, 0.45-(d-1)*0.04+(100-l)/200-(y>10?0.08:0)+(Math.random()-0.5)*0.06));
+    const wp = Math.max(0.03, Math.min(0.97, 0.5+sc/60+(g>1800?0:(g/3600-0.5)*sc/40)+(Math.random()-0.5)*0.04));
+    const rz = l<=20 ? Math.max(0.05,Math.min(0.95,0.35+(20-l)/60+(Math.random()-0.5)*0.08)) : null;
+    const td   = Math.max(2, (100-l)/200*100+12+Math.random()*4-2);
+    const fg   = Math.max(1, (l<=45?20:6)+Math.random()*3-1.5);
+    const to   = Math.max(2, 8+(d>=3&&y>8?4:0)+Math.random()*2);
+    const punt = Math.max(2, 100-td-fg-to);
+    return { epa:+epa.toFixed(3), sr:+(sr*100).toFixed(1), wp:+(wp*100).toFixed(1),
+      rz: rz!==null?+(rz*100).toFixed(1):null,
+      drive:{td:+td.toFixed(1), fg:+fg.toFixed(1), punt:+punt.toFixed(1), to:+to.toFixed(1)} };
+  }
+
+  function normDrive(d) {
+    const t = d.td+d.fg+d.punt+d.to;
+    return {td:+(d.td/t*100).toFixed(1), fg:+(d.fg/t*100).toFixed(1), punt:+(d.punt/t*100).toFixed(1), to:+(d.to/t*100).toFixed(1)};
+  }
+
+  function runPrediction() {
+    readInputs();
+    ['out-epa','out-sr','out-rz'].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent='···'; el.className='stat-val na loading';
+    });
+    setTimeout(() => {
+      const res = mockModel(derive(S));
+      renderMain(res);
+      history.unshift({s:{...S}, res, time: new Date().toLocaleTimeString()});
+      renderHistory();
+    }, 280);
+  }
+
+  function renderMain(res) {
+    setStat('out-epa', (res.epa>=0?'+':'')+res.epa, res.epa>0?'pos':'neg');
+    setStat('out-sr',  res.sr+'%', res.sr>=50?'pos':'neg');
+    res.rz!==null ? setStat('out-rz', res.rz+'%', res.rz>=35?'pos':'neg')
+                  : (()=>{ const e=document.getElementById('out-rz'); e.textContent='N/A'; e.className='stat-val na'; })();
+    document.getElementById('wp-bar').style.width = res.wp+'%';
+    document.getElementById('wp-off').textContent = res.wp+'%';
+    document.getElementById('wp-def').textContent = (100-res.wp).toFixed(1)+'%';
+    const d = normDrive(res.drive);
+    setDrive('td',d.td); setDrive('fg',d.fg); setDrive('punt',d.punt); setDrive('to',d.to);
+  }
+
+  function setStat(id, val, cls) { const e=document.getElementById(id); e.textContent=val; e.className='stat-val '+cls; }
+  function setDrive(k,p) { document.getElementById('do-'+k).style.width=p+'%'; document.getElementById('do-'+k+'-p').textContent=p+'%'; }
+
+  function renderHistory() {
+    const body = document.getElementById('hist-body');
+    if(!history.length) { body.innerHTML='<tr><td colspan="9"><div class="empty">No predictions yet.</div></td></tr>'; return; }
+    const dn=['—','1st','2nd','3rd','4th'];
+    body.innerHTML = history.slice(0,40).map((e,i) => {
+      const s=e.s, r=e.res;
+      const fav = Object.entries(normDrive(r.drive)).sort((a,b)=>b[1]-a[1])[0][0];
+      const favLabel = {td:'Touchdown',fg:'Field Goal',punt:'Punt',to:'Turnover'}[fav];
+      return `<tr>
+        <td style="color:var(--muted);font-family:var(--mono);font-size:12px">${history.length-i}</td>
+        <td>${dn[s.down]} &amp; ${s.ydstogo}</td>
+        <td style="font-family:var(--mono)">${s.yardline_100}</td>
+        <td style="font-family:var(--mono)">${s.score_differential>=0?'+':''}${s.score_differential}</td>
+        <td><span class="badge ${r.epa>=0?'badge-pos':'badge-neg'}">${r.epa>=0?'+':''}${r.epa}</span></td>
+        <td style="font-family:var(--mono)">${r.sr}%</td>
+        <td style="font-family:var(--mono)">${r.wp}%</td>
+        <td style="color:var(--muted)">${favLabel}</td>
+        <td style="color:var(--muted);font-size:12px">${e.time}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function clearHistory() { history=[]; renderHistory(); }
+
+  function runCompare(side) {
+    const s = {
+      down: +document.getElementById(`c${side}-down`).value,
+      ydstogo: +document.getElementById(`c${side}-ytg`).value,
+      yardline_100: +document.getElementById(`c${side}-yl`).value,
+      score_differential: +document.getElementById(`c${side}-sd`).value,
+      game_seconds_remaining: +document.getElementById(`c${side}-gs`).value,
+      shotgun_flag:0, no_huddle_flag:0, play_type_bin:1,
+      posteam_timeouts_remaining:3, defteam_timeouts_remaining:3
+    };
+    const res = mockModel(derive(s));
+    cmpRes[side] = res;
+    const el = document.getElementById(`c${side}-result`);
+    el.style.display='grid';
+    el.innerHTML=`
+      <div class="stat-cell"><div class="stat-lbl">EPA</div><div class="stat-val ${res.epa>=0?'pos':'neg'}">${res.epa>=0?'+':''}${res.epa}</div></div>
+      <div class="stat-cell"><div class="stat-lbl">Success%</div><div class="stat-val ${res.sr>=50?'pos':'neg'}">${res.sr}%</div></div>
+      <div class="stat-cell"><div class="stat-lbl">Win%</div><div class="stat-val">${res.wp}%</div></div>`;
+    if(cmpRes.a && cmpRes.b) {
+      const a=cmpRes.a, b=cmpRes.b;
+      const dE=+(a.epa-b.epa).toFixed(3), dS=+(a.sr-b.sr).toFixed(1), dW=+(a.wp-b.wp).toFixed(1);
+      document.getElementById('delta-card').style.display='block';
+      document.getElementById('delta-row').innerHTML=`
+        <div class="stat-cell"><div class="stat-lbl">Δ EPA (A−B)</div><div class="stat-val ${dE>=0?'pos':'neg'}">${dE>=0?'+':''}${dE}</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Δ Success%</div><div class="stat-val ${dS>=0?'pos':'neg'}">${dS>=0?'+':''}${dS}%</div></div>
+        <div class="stat-cell"><div class="stat-lbl">Δ Win%</div><div class="stat-val ${dW>=0?'pos':'neg'}">${dW>=0?'+':''}${dW}%</div></div>`;
+    }
+  }
+</script>
+</body>
+</html>
