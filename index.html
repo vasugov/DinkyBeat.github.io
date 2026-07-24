@@ -4,56 +4,106 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vasudevan Govardhanen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html, body { height: 100%; }
+
 body {
-  font-family: Georgia, serif;
-  font-size: 16px;
-  line-height: 1.7;
-  color: #111;
-  background: #fff;
-  max-width: 680px;
-  margin: 60px auto;
-  padding: 0 24px 80px;
+  font-family: "EB Garamond", "Garamond", "Times New Roman", Times, serif;
+  font-weight: 400;
+  background: #ffffff;
+  color: #1a1a1a;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
-h1 { font-size: 20px; margin-bottom: 24px; }
-h2 { font-size: 16px; margin: 28px 0 8px; }
-p  { margin-bottom: 8px; }
-a  { color: #1a52a0; }
-a:hover { text-decoration: none; }
-hr { border: none; border-top: 1px solid #ddd; margin: 24px 0; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
 
-.copyright { margin-top: 48px; font-size: 13px; color: #aaa; }
+.card {
+  width: 100%;
+  max-width: 700px;
+  padding: 48px 52px;
+}
 
-@media (max-width: 540px) {
-  body { margin: 32px auto; font-size: 15px; }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.contact-left { text-align: left; }
+.contact-right { text-align: right; }
+
+.org-name { font-size: 22px; }
+.org-sub { font-size: 17px; }
+
+main {
+  text-align: center;
+  padding: 72px 0 56px;
+}
+
+.name {
+  font-size: 48px;
+  line-height: 1.1;
+}
+
+.role {
+  margin-top: 14px;
+  font-size: 22px;
+}
+
+footer {
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .card { padding: 36px 24px; }
+  header { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+  .contact-left, .contact-right { text-align: center; }
+  main { padding: 56px 0 40px; }
+  .name { font-size: 36px; }
 }
 </style>
 </head>
 <body>
 
-<h1>Vasu Govardhanen</h1>
+<div class="card">
+  <header>
+    <div class="contact-left">
+      <div><a href="mailto:vgovardhanen@gmail.com">vgovardhanen@gmail.com</a></div>
+      <div><a href="https://www.linkedin.com/in/vasugov/" target="_blank" rel="noopener">linkedin.com/in/vasugov</a></div>
+    </div>
+    <div class="contact-right">
+      <div class="org-name">University of Illinois</div>
+      <div class="org-sub">Urbana&ndash;Champaign</div>
+    </div>
+  </header>
 
-<p><a href="https://cs.illinois.edu/" target="_blank" rel="noopener">Incoming CS @ UIUC</a></p>
-<p><a href="https://www.linkedin.com/in/vasudevan-govardhanen-551018385/" target="_blank" rel="noopener">LinkedIn</a></p>
-<p><a href="mailto:vgovardhanen@gmail.com">Email</a></p>
+  <main>
+    <div class="name">Vasu GOVARDHANEN</div>
+    <div class="role">Computer Science</div>
+  </main>
 
-<hr>
-
-<h2>Areas of Interest</h2>
-<p>Computing systems (GPU programming and CUDA, operating systems design, systems performance and low-level architecture) and differential geometry</p>
-
-<hr>
-
-<h2>Writing</h2>
-<p><a href="/blog/">Blog</a></p>
-
-<hr>
-
-
-<p class="copyright">© 2026 Vasu Govardhanen</p>
+  <footer>
+    <div>Champaign&ndash;Urbana, Illinois, USA</div>
+    <div><a href="/blog/">Writing</a></div>
+  </footer>
+</div>
 
 </body>
 </html>
